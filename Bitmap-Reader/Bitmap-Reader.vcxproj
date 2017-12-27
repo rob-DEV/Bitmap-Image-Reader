@@ -129,6 +129,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\bitmap\bitmap.h" />
+    <ClInclude Include="src\bitmap\pixel.h" />
     <ClInclude Include="src\console\console.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

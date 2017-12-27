@@ -1,131 +1,100 @@
 #include "bitmap.h"
 
-
-
-BitmapImage::BitmapImage(const char* filePath)
+Bitmap::Bitmap(const char* filePath)
 {
 	m_FilePath = std::string(filePath);
-	loadBitmap();
+	load();
 }
 
-
-BitmapImage::~BitmapImage()
+Bitmap::~Bitmap()
 {
 }
 
-void BitmapImage::loadBitmap()
+void Bitmap::load()
 {
 	std::ifstream stream(m_FilePath.c_str(), std::ios::binary);
 	if (!stream)
 	{
-		console.Log("loadBitmap() : File Not Found!");
+		std::cout << "Bitmap::load() : File Not Found!" << std::endl;
 		return;
 	}
 
-	//test: reading the header info byte by byte (24 bit bitmap file)
-	stream.seekg(0, stream.end);
-	int length = (int)stream.tellg();
-	stream.seekg(0, stream.beg);
+	read_from_stream(stream, m_Type);
+	read_from_stream(stream, m_FileSize);
+	read_from_stream(stream, m_Reserved_1);
+	read_from_stream(stream, m_Reserved_2);
+	read_from_stream(stream, m_PixelDataOffset);
+	read_from_stream(stream, m_DibHeaderSize);
+	read_from_stream(stream, m_Width);
+	read_from_stream(stream, m_Height);
+	read_from_stream(stream, m_Planes);
+	read_from_stream(stream, m_BitsPerPixel);
+	read_from_stream(stream, m_Compression);
+	read_from_stream(stream, m_Image_Size);
 
-	unsigned short bmp_signature = 0;
-	unsigned int bmp_file_size = 0;
-	unsigned short bmp_reserved_1 = 0;
-	unsigned short bmp_reserved_2 = 0;
-	unsigned int bmp_pixel_offset = 0;
-	unsigned int bmp_dib_header_size = 0;
-	unsigned int bmp_width = 0;
-	unsigned int bmp_height = 0;
-	unsigned short bmp_image_planes = 0;
-	unsigned short bmp_image_bits_per_pixel = 0;
-	unsigned int bmp_image_compression = 0;
-	unsigned int bmp_image_size = 0;
-	//read in bmp modelled on the 24bit file format
+	std::cout << "BMP type: " << m_Type << std::endl;
+	std::cout << "BMP file size: " << m_FileSize << std::endl;
+	std::cout << "BMP reserved 1: " << m_Reserved_1 << std::endl;
+	std::cout << "BMP reserved 2: " << m_Reserved_2 << std::endl;
+	std::cout << "BMP pixel offset: " << m_PixelDataOffset << std::endl;
+	std::cout << "BMP DIB header size: " << m_DibHeaderSize << std::endl;
+	std::cout << "BMP image width: " << m_Width << std::endl;
+	std::cout << "BMP image height: " << m_Height << std::endl;
+	std::cout << "BMP image planes: " << m_Planes << std::endl;
+	std::cout << "BMP image bits per pixel: " << m_BitsPerPixel << std::endl;
+	std::cout << "BMP image compression: " << m_Compression << std::endl;
+	std::cout << "BMP image size: " << m_Image_Size << std::endl;
 
-	//read signature (bmp type) into short should be 19778
-	stream.read(reinterpret_cast<char*>(&bmp_signature), 2);
-	//read the file size into a 4 byte unsigned int
-	stream.read(reinterpret_cast<char*>(&bmp_file_size), 4);
-	//read past the 2 2 byte reserved chunks
-	stream.read(reinterpret_cast<char*>(&bmp_reserved_1), 2);
-	stream.read(reinterpret_cast<char*>(&bmp_reserved_2), 2);
-	//read the pixel offset
-	stream.read(reinterpret_cast<char*>(&bmp_pixel_offset), 4);
-	//read the DIB header size
-	stream.read(reinterpret_cast<char*>(&bmp_dib_header_size), 4);
-	//read the image width
-	stream.read(reinterpret_cast<char*>(&bmp_width), 4);
-	//read the image height
-	stream.read(reinterpret_cast<char*>(&bmp_height), 4);
-	//read image planes
-	stream.read(reinterpret_cast<char*>(&bmp_image_planes), 2);
-	//read bits per pixel should be 24 hence rgb, 8 bits (1 byte) each
-	stream.read(reinterpret_cast<char*>(&bmp_image_bits_per_pixel), 2);
-	//read image compression
-	stream.read(reinterpret_cast<char*>(&bmp_image_compression), 4);
-	//read image size
-	stream.read(reinterpret_cast<char*>(&bmp_image_size), 4);
-
-	std::cout << "BMP type: " << bmp_signature << std::endl;
-	std::cout << "BMP file size: " << bmp_file_size << std::endl;
-	std::cout << "BMP reserved 1: " << bmp_reserved_1 << std::endl;
-	std::cout << "BMP reserved 2: " << bmp_reserved_2 << std::endl;
-	std::cout << "BMP pixel offset: " << bmp_pixel_offset << std::endl;
-	std::cout << "BMP DIB header size: " << bmp_dib_header_size << std::endl;
-	std::cout << "BMP image width: " << bmp_width << std::endl;
-	std::cout << "BMP image height: " << bmp_height << std::endl;
-	std::cout << "BMP image planes: " << bmp_image_planes << std::endl;
-	std::cout << "BMP image bits per pixel: " << bmp_image_bits_per_pixel << std::endl;
-	std::cout << "BMP image compression: " << bmp_image_compression << std::endl;
-	std::cout << "BMP image size: " << bmp_image_size << std::endl;
-
+	//read the image data
 	//seek to the pixel array from the beginning to the offset
-	stream.seekg(bmp_pixel_offset, stream.beg);
-	
-	std::vector<Pixel> pixels;
-	//size - actual pixel size = padding
-	for (size_t i = 0; i < bmp_height * bmp_width; i++)
+	stream.seekg(m_PixelDataOffset, stream.beg);
+
+	for (size_t i = 0; i < m_Width * m_Height; i++)
 	{
 		//stream reads in pixels in the format bgr instead of rgb
 		//the structure of the pixel structure figures this out correctly
 		Pixel pixel;
-		stream.read(reinterpret_cast<char*>(&pixel), sizeof(pixel));
-		pixels.push_back(pixel);
-
-
-
-		//std::cout << "At: " << streamPos << " r: " << (unsigned int)pixel.r << " g: " << (unsigned int)pixel.g << " b:" << (unsigned int)pixel.b << std::endl;
+		read_from_stream(stream, pixel);
+		m_Image.push_back(pixel);
 	}
 
 	stream.close();
+}
 
-
+void Bitmap::invert()
+{
 	std::cout << "Begin Colour Invert!" << std::endl;
 
-	std::ofstream writeStream;
-	writeStream.open(m_FilePath.c_str(), std::ios::binary | std::ios::in);
-	
-	if (!writeStream)
+	std::ofstream stream;
+	stream.open(m_FilePath.c_str(), std::ios::binary | std::ios::in);
+
+	if (!stream)
 	{
-		console.Log("loadBitmap() : File Not Found!");
+		std::cout << "invert() : File Not Found!" << std::endl;
 		return;
 	}
 
 	//invert colours of each pixels and overwrite image
-	for (size_t i = 0; i < pixels.size(); i++)
-		pixels[i].invert();
+	for (size_t i = 0; i < m_Image.size(); i++)
+		m_Image[i].invert();
 
-	/*
-	writeStream.seekp(0, writeStream.end);
-	int lengthy = writeStream.tellp();
-	writeStream.seekp(0, writeStream.beg);
-	std::cout << lengthy;
-	*/
-	writeStream.clear();
-	writeStream.seekp(bmp_pixel_offset, std::ios::beg);
+	stream.clear();
+	stream.seekp(m_PixelDataOffset, std::ios::beg);
 
-	for (size_t i = 0; i < bmp_height * bmp_width; i++)
-		writeStream.write(reinterpret_cast<char*>(&pixels[i]), 3);
+	for (size_t i = 0; i < m_Width * m_Height; i++)
+		write_to_stream(stream, m_Image[i]);
 
 	std::cout << "Invertion Complete!" << std::endl;
+}
 
+template<typename T>
+void Bitmap::read_from_stream(std::ifstream& stream, T& t)
+{
+	stream.read(reinterpret_cast<char*>(&t), sizeof(T));
+}
+
+template<typename T>
+void Bitmap::write_to_stream(std::ofstream& stream, T& t)
+{
+	stream.write(reinterpret_cast<char*>(&t), sizeof(T));
 }
