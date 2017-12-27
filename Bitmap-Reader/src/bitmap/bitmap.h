@@ -2,6 +2,7 @@
 #include "../console/console.h"
 #include <string>
 #include <fstream>
+#include <vector>
 
 extern Console& console;
 
@@ -16,5 +17,10 @@ private:
 public:
 	BitmapImage(const char* filePath);
 	~BitmapImage();
+};
+
+struct Pixel
+{
+	unsigned char r, g, b = 0;
 };
 

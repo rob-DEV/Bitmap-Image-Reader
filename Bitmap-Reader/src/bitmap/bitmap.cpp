@@ -24,7 +24,7 @@ void BitmapImage::loadBitmap()
 
 	//test: reading the header info byte by byte (24 bit bitmap file)
 	stream.seekg(0, stream.end);
-	int length = stream.tellg();
+	int length = (int)stream.tellg();
 	stream.seekg(0, stream.beg);
 
 	unsigned short bmp_signature = 0;
@@ -33,8 +33,8 @@ void BitmapImage::loadBitmap()
 	unsigned short bmp_reserved_2 = 0;
 	unsigned int bmp_pixel_offset = 0;
 	unsigned int bmp_dib_header_size = 0;
-	unsigned int bmp_image_width = 0;
-	unsigned int bmp_image_height = 0;
+	unsigned int bmp_width = 0;
+	unsigned int bmp_height = 0;
 	unsigned short bmp_image_planes = 0;
 	unsigned short bmp_image_bits_per_pixel = 0;
 	unsigned int bmp_image_compression = 0;
@@ -53,9 +53,9 @@ void BitmapImage::loadBitmap()
 	//read the DIB header size
 	stream.read(reinterpret_cast<char*>(&bmp_dib_header_size), 4);
 	//read the image width
-	stream.read(reinterpret_cast<char*>(&bmp_image_width), 4);
+	stream.read(reinterpret_cast<char*>(&bmp_width), 4);
 	//read the image height
-	stream.read(reinterpret_cast<char*>(&bmp_image_height), 4);
+	stream.read(reinterpret_cast<char*>(&bmp_height), 4);
 	//read image planes
 	stream.read(reinterpret_cast<char*>(&bmp_image_planes), 2);
 	//read bits per pixel should be 24 hence rgb, 8 bits (1 byte) each
@@ -71,8 +71,8 @@ void BitmapImage::loadBitmap()
 	std::cout << "BMP reserved 2: " << bmp_reserved_2 << std::endl;
 	std::cout << "BMP pixel offset: " << bmp_pixel_offset << std::endl;
 	std::cout << "BMP DIB header size: " << bmp_dib_header_size << std::endl;
-	std::cout << "BMP image width: " << bmp_image_width << std::endl;
-	std::cout << "BMP image height: " << bmp_image_height << std::endl;
+	std::cout << "BMP image width: " << bmp_width << std::endl;
+	std::cout << "BMP image height: " << bmp_height << std::endl;
 	std::cout << "BMP image planes: " << bmp_image_planes << std::endl;
 	std::cout << "BMP image bits per pixel: " << bmp_image_bits_per_pixel << std::endl;
 	std::cout << "BMP image compression: " << bmp_image_compression << std::endl;
@@ -80,10 +80,21 @@ void BitmapImage::loadBitmap()
 
 	//seek to the pixel array from the beginning to the offset
 	stream.seekg(bmp_pixel_offset, stream.beg);
-
-	if ((int)stream.tellg() != bmp_pixel_offset)
-	{
-		console.Log("loadBitmap() : Error seeking to pixel offset!");
-	}
 	
+	std::vector<Pixel> pixels;
+	//size - actual pixel size = padding
+	for (size_t i = 0; i < bmp_height * bmp_width; i++)
+	{
+		//stream.read(reinterpret_cast<char*>(&bmp_width), 4);
+		Pixel pixel;
+		unsigned int streamPos = stream.tellg();
+		stream.read(reinterpret_cast<char*>(&pixel), 3);
+		pixels.push_back(pixel);
+
+		//std::cout << "At: " << streamPos << " r: " << (unsigned int)pixel.r << " g: " << (unsigned int)pixel.g << " b:" << (unsigned int)pixel.b << std::endl;
+	}
+
+	std::cout << pixels.size();
+
+
 }
