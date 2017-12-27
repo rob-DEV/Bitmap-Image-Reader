@@ -5,6 +5,6 @@ Console& console = Console::GetConsole();
 
 int main()
 {
-	BitmapImage bitmapTest("res/test.bmp");
+	BitmapImage bitmapTest("res/large_image_test.bmp");
 	console.Pause();
 }

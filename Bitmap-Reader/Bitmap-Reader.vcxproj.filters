@@ -21,6 +21,9 @@
     <Image Include="res\BMPfileFormat.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\large_image_test.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\bitmap\bitmap.cpp">

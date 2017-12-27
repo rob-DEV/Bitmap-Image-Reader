@@ -21,6 +21,13 @@ public:
 
 struct Pixel
 {
-	unsigned char r, g, b = 0;
+	unsigned char b, g, r = 0;
+
+	void invert()
+	{
+		b = 255 - b;
+		g = 255 - g;
+		r = 255 - r;
+	}
 };
 

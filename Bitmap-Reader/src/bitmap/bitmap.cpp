@@ -85,16 +85,47 @@ void BitmapImage::loadBitmap()
 	//size - actual pixel size = padding
 	for (size_t i = 0; i < bmp_height * bmp_width; i++)
 	{
-		//stream.read(reinterpret_cast<char*>(&bmp_width), 4);
+		//stream reads in pixels in the format bgr instead of rgb
+		//the structure of the pixel structure figures this out correctly
 		Pixel pixel;
-		unsigned int streamPos = stream.tellg();
-		stream.read(reinterpret_cast<char*>(&pixel), 3);
+		stream.read(reinterpret_cast<char*>(&pixel), sizeof(pixel));
 		pixels.push_back(pixel);
+
+
 
 		//std::cout << "At: " << streamPos << " r: " << (unsigned int)pixel.r << " g: " << (unsigned int)pixel.g << " b:" << (unsigned int)pixel.b << std::endl;
 	}
 
-	std::cout << pixels.size();
+	stream.close();
 
+
+	std::cout << "Begin Colour Invert!" << std::endl;
+
+	std::ofstream writeStream;
+	writeStream.open(m_FilePath.c_str(), std::ios::binary | std::ios::in);
+	
+	if (!writeStream)
+	{
+		console.Log("loadBitmap() : File Not Found!");
+		return;
+	}
+
+	//invert colours of each pixels and overwrite image
+	for (size_t i = 0; i < pixels.size(); i++)
+		pixels[i].invert();
+
+	/*
+	writeStream.seekp(0, writeStream.end);
+	int lengthy = writeStream.tellp();
+	writeStream.seekp(0, writeStream.beg);
+	std::cout << lengthy;
+	*/
+	writeStream.clear();
+	writeStream.seekp(bmp_pixel_offset, std::ios::beg);
+
+	for (size_t i = 0; i < bmp_height * bmp_width; i++)
+		writeStream.write(reinterpret_cast<char*>(&pixels[i]), 3);
+
+	std::cout << "Invertion Complete!" << std::endl;
 
 }

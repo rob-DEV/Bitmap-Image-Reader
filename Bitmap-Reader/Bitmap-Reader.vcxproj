@@ -119,6 +119,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Image Include="res\BMPfileFormat.png" />
+    <Image Include="res\large_image_test.bmp" />
     <Image Include="res\test.bmp" />
   </ItemGroup>
   <ItemGroup>
