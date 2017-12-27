@@ -27,7 +27,6 @@ private:
 
 private:
 	void load();
-	void save();
 
 	template<typename T>
 	void read_from_stream(std::ifstream& stream, T& t);
