@@ -52,7 +52,7 @@ void Bitmap::load()
 	for (size_t i = 0; i < m_Width * m_Height; i++)
 	{
 		//stream reads in pixels in the format bgr instead of rgb
-		//the structure of the pixel structure figures this out correctly
+		//the structure of the pixel struct figures this out correctly
 		Pixel pixel;
 		read_from_stream(stream, pixel);
 		m_Image.push_back(pixel);
@@ -70,7 +70,7 @@ void Bitmap::invert()
 
 	if (!stream)
 	{
-		std::cout << "invert() : File Not Found!" << std::endl;
+		std::cout << "Bitmap::invert() : File Not Found!" << std::endl;
 		return;
 	}
 
