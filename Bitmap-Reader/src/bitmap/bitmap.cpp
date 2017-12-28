@@ -8,6 +8,7 @@ Bitmap::Bitmap(const char* filePath)
 
 Bitmap::~Bitmap()
 {
+	m_Image.clear();
 }
 
 void Bitmap::load()
@@ -44,7 +45,7 @@ void Bitmap::load()
 	std::cout << "BMP image bits per pixel: " << m_BitsPerPixel << std::endl;
 	std::cout << "BMP image compression: " << m_Compression << std::endl;
 	std::cout << "BMP image size: " << m_Image_Size << std::endl;
-
+	
 	//read the image data
 	//seek to the pixel array from the beginning to the offset
 	stream.seekg(m_PixelDataOffset, stream.beg);
