@@ -23,7 +23,6 @@ struct Console::console_deleter
 {
 	void operator()(const Console* const p)
 	{
-		std::cout << "Console deleter" << std::endl;
 		delete p;
 	}
 };
