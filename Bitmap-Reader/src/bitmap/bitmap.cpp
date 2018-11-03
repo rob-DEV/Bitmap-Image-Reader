@@ -20,37 +20,27 @@ void Bitmap::load()
 		return;
 	}
 
-	read_from_stream(stream, m_Type);
-	read_from_stream(stream, m_FileSize);
-	read_from_stream(stream, m_Reserved_1);
-	read_from_stream(stream, m_Reserved_2);
-	read_from_stream(stream, m_PixelDataOffset);
-	read_from_stream(stream, m_DibHeaderSize);
-	read_from_stream(stream, m_Width);
-	read_from_stream(stream, m_Height);
-	read_from_stream(stream, m_Planes);
-	read_from_stream(stream, m_BitsPerPixel);
-	read_from_stream(stream, m_Compression);
-	read_from_stream(stream, m_Image_Size);
+	read_from_stream(stream, m_Header);
 
-	std::cout << "BMP type: " << m_Type << std::endl;
-	std::cout << "BMP file size: " << m_FileSize << std::endl;
-	std::cout << "BMP reserved 1: " << m_Reserved_1 << std::endl;
-	std::cout << "BMP reserved 2: " << m_Reserved_2 << std::endl;
-	std::cout << "BMP pixel offset: " << m_PixelDataOffset << std::endl;
-	std::cout << "BMP DIB header size: " << m_DibHeaderSize << std::endl;
-	std::cout << "BMP image width: " << m_Width << std::endl;
-	std::cout << "BMP image height: " << m_Height << std::endl;
-	std::cout << "BMP image planes: " << m_Planes << std::endl;
-	std::cout << "BMP image bits per pixel: " << m_BitsPerPixel << std::endl;
-	std::cout << "BMP image compression: " << m_Compression << std::endl;
-	std::cout << "BMP image size: " << m_Image_Size << std::endl;
+
+	std::cout << "BMP type: " << m_Header.m_Type << std::endl;
+	std::cout << "BMP file size: " << m_Header.m_FileSize << std::endl;
+	std::cout << "BMP reserved 1: " << m_Header.m_Reserved_1 << std::endl;
+	std::cout << "BMP reserved 2: " << m_Header.m_Reserved_2 << std::endl;
+	std::cout << "BMP pixel offset: " << m_Header.m_PixelDataOffset << std::endl;
+	std::cout << "BMP DIB header size: " << m_Header.m_DibHeaderSize << std::endl;
+	std::cout << "BMP image width: " << m_Header.m_Width << std::endl;
+	std::cout << "BMP image height: " << m_Header.m_Height << std::endl;
+	std::cout << "BMP image planes: " << m_Header.m_Planes << std::endl;
+	std::cout << "BMP image bits per pixel: " << m_Header.m_BitsPerPixel << std::endl;
+	std::cout << "BMP image compression: " << m_Header.m_Compression << std::endl;
+	std::cout << "BMP image size: " << m_Header.m_Image_Size << std::endl;
 	
 	//read the image data
 	//seek to the pixel array from the beginning to the offset
-	stream.seekg(m_PixelDataOffset, stream.beg);
+	stream.seekg(m_Header.m_PixelDataOffset, stream.beg);
 
-	for (size_t i = 0; i < m_Width * m_Height; i++)
+	for (size_t i = 0; i < m_Header.m_Width * m_Header.m_Height; i++)
 	{
 		//stream reads in pixels in the format bgr instead of rgb
 		//the structure of the pixel struct figures this out correctly
@@ -80,9 +70,9 @@ void Bitmap::invert()
 		m_Image[i].invert();
 
 	stream.clear();
-	stream.seekp(m_PixelDataOffset, std::ios::beg);
+	stream.seekp(m_Header.m_PixelDataOffset, std::ios::beg);
 
-	for (size_t i = 0; i < m_Width * m_Height; i++)
+	for (size_t i = 0; i < m_Header.m_Width * m_Header.m_Height; i++)
 		write_to_stream(stream, m_Image[i]);
 
 	std::cout << "Invertion Complete!" << std::endl;

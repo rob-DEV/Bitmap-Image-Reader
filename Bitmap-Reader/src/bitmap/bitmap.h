@@ -6,10 +6,14 @@
 #include <string>
 #include "pixel.h"
 
-class Bitmap
-{
-private:
-	std::string m_FilePath;
+#ifdef __GNUC__
+#define PACKED( class_to_pack ) class_to_pack __attribute__((__packed__))
+#else
+#define PACKED( class_to_pack ) __pragma( pack(push, 1) ) class_to_pack __pragma( pack(pop) )
+#endif
+
+
+PACKED(struct Bitmap_Header_t {
 	unsigned short m_Type;
 	unsigned int m_FileSize = 0;
 	unsigned short m_Reserved_1 = 0;
@@ -22,6 +26,15 @@ private:
 	unsigned short m_BitsPerPixel = 0;
 	unsigned int m_Compression = 0;
 	unsigned int m_Image_Size = 0;
+};
+)
+
+class Bitmap
+{
+private:
+	std::string m_FilePath;
+	
+	Bitmap_Header_t m_Header;
 
 	std::vector<Pixel> m_Image;
 
